@@ -84,21 +84,24 @@ public class GattFragment extends Fragment {
     }
 
     public void start() {
+        Log.e("connect BTDevice",device.getName());
         name.setText(device.getName() + " " + device.getAddress());
         BluetoothGatt gatt = device.connectGatt(context, false, new BluetoothGattCallback() {
+                    // 当连接状态发生改变
                     @Override
                     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                        super.onConnectionStateChange(gatt, status, newState);
                         sendmsg("onConnectionStateChange");
+                        super.onConnectionStateChange(gatt, status, newState);
                         if (newState == BluetoothGatt.STATE_CONNECTED)
                             gatt.discoverServices();
 
                     }
 
+                    // 新的远程设备的服务,特征,描述发生改变时回调
                     @Override
                     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-                        super.onServicesDiscovered(gatt, status);
                         sendmsg("OnserviceDiscovered");
+                        super.onServicesDiscovered(gatt, status);
                         //now we can start the characteristic
                         List<BluetoothGattService> services = gatt.getServices();
                         BluetoothGattCharacteristic characteristic = null;
@@ -108,6 +111,7 @@ public class GattFragment extends Fragment {
                             for (BluetoothGattCharacteristic serviceCharacteristic : service.getCharacteristics()) {
 
                                 characteristic = serviceCharacteristic;
+
                                 sendmsg("char name is " + characteristic.toString());
                                 boolean successfullyRead = gatt.readCharacteristic(characteristic);
                                 sendmsg("Read characteristic " + successfullyRead);
@@ -125,8 +129,8 @@ public class GattFragment extends Fragment {
 
                     @Override
                     public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-                        super.onCharacteristicRead(gatt, characteristic, status);
                         sendmsg("OnCharacteristicRead");
+                        super.onCharacteristicRead(gatt, characteristic, status);
                         if (status == BluetoothGatt.GATT_SUCCESS) {
                             byte[] characteristicValue = characteristic.getValue();
                             sendmsg("char is " + characteristicValue.toString());
@@ -140,8 +144,8 @@ public class GattFragment extends Fragment {
 
                     @Override
                     public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-                        super.onDescriptorRead(gatt, descriptor, status);
                         sendmsg("onDescriptorRead");
+                        super.onDescriptorRead(gatt, descriptor, status);
                         if (status == BluetoothGatt.GATT_SUCCESS) {
                             byte[] descriptorValue = descriptor.getValue();
                             sendmsg("Descriptor: " + descriptorValue.toString());
